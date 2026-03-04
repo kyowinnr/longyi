@@ -15,6 +15,8 @@ class AccountingController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->ensureDefaultFirstGeneration();
+
         $keyword = $request->string('q')->toString();
 
         $members = Member::query()
@@ -36,6 +38,8 @@ class AccountingController extends Controller
 
     public function recruit(Request $request, BonusCalculator $calculator): RedirectResponse
     {
+        $this->ensureDefaultFirstGeneration();
+
         $validated = $request->validate([
             'recruiter_id' => ['required', 'exists:members,id'],
             'new_member_name' => ['required', 'string', 'max:255'],
@@ -66,49 +70,14 @@ class AccountingController extends Controller
             }
         });
 
-        return back()->with('status', '招募與獎金分配已建立');
+        return back()->with('status', '招募與帳務已建立');
     }
 
-    public function seedExample(): RedirectResponse
+    private function ensureDefaultFirstGeneration(): void
     {
-        DB::transaction(function (): void {
-            BonusPayout::query()->delete();
-            RecruitmentEvent::query()->delete();
-            Member::query()->delete();
-
-            $first = Member::create(['name' => '第一代']);
-            $second = Member::create(['name' => '第二代', 'sponsor_id' => $first->id]);
-            $third = Member::create(['name' => '第三代', 'sponsor_id' => $second->id]);
-            $fourth = Member::create(['name' => '第四代', 'sponsor_id' => $third->id]);
-
-            $events = [
-                [$first, $second],
-                [$second, $third],
-                [$third, $fourth],
-            ];
-
-            $calculator = app(BonusCalculator::class);
-
-            foreach ($events as [$recruiter, $newMember]) {
-                $distribution = $calculator->forRecruitment($recruiter->load('sponsor'));
-
-                $event = RecruitmentEvent::create([
-                    'recruiter_id' => $recruiter->id,
-                    'new_member_id' => $newMember->id,
-                    'company_income' => 36000,
-                    'bonus_payout_total' => array_sum($distribution),
-                ]);
-
-                foreach ($distribution as $memberId => $amount) {
-                    BonusPayout::create([
-                        'recruitment_event_id' => $event->id,
-                        'member_id' => $memberId,
-                        'amount' => $amount,
-                    ]);
-                }
-            }
-        });
-
-        return back()->with('status', '已建立範例資料（第一代到第四代）');
+        Member::query()->firstOrCreate(
+            ['name' => '第一代', 'sponsor_id' => null],
+            ['name' => '第一代', 'sponsor_id' => null]
+        );
     }
 }

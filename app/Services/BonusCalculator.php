@@ -11,14 +11,15 @@ class BonusCalculator
      */
     public function forRecruitment(Member $recruiter): array
     {
+        // 第一代（無 sponsor）招收第二代時，不分獎金。
+        if (! $recruiter->sponsor_id) {
+            return [];
+        }
+
         $distribution = [$recruiter->id => 10000];
 
-        $secondLevel = $recruiter->sponsor;
-
-        if ($secondLevel) {
-            $distribution[$secondLevel->id] = 5000;
-        } else {
-            $distribution[$recruiter->id] += 5000;
+        if ($recruiter->sponsor) {
+            $distribution[$recruiter->sponsor->id] = 5000;
         }
 
         return $distribution;

@@ -14,6 +14,5 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [AccountingController::class, 'index'])->name('dashboard');
     Route::post('/members/recruit', [AccountingController::class, 'recruit'])->name('members.recruit');
-    Route::post('/seed-example', [AccountingController::class, 'seedExample'])->name('seed.example');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

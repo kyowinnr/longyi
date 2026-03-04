@@ -10,6 +10,10 @@
         <p style="color: green">{{ session('status') }}</p>
     @endif
 
+    <div class="card">
+        <p><strong>規則：</strong>系統預設有「第一代」，第一代招收第二代不分獎金；從第二代開始招募才分獎金。</p>
+    </div>
+
     <div class="row">
         <div class="card">
             <strong>公司收入總額：</strong>{{ number_format($totalIncome) }}
@@ -20,11 +24,6 @@
         <div class="card">
             <strong>公司淨額：</strong>{{ number_format($totalIncome - $totalPayout) }}
         </div>
-    </div>
-
-    <div class="card">
-        <h3>建立範例資料</h3>
-        <form method="POST" action="{{ route('seed.example') }}">@csrf<button type="submit">建立第一代到第四代範例</button></form>
     </div>
 
     <div class="card">
@@ -68,9 +67,11 @@
                 <td>{{ number_format($event->company_income) }}</td>
                 <td>{{ number_format($event->bonus_payout_total) }}</td>
                 <td>
-                    @foreach($event->bonusPayouts as $bonus)
+                    @forelse($event->bonusPayouts as $bonus)
                         {{ $bonus->member->name }}：{{ number_format($bonus->amount) }}<br>
-                    @endforeach
+                    @empty
+                        無
+                    @endforelse
                 </td>
             </tr>
         @endforeach

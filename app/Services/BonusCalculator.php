@@ -18,10 +18,15 @@ class BonusCalculator
 
         $distribution = [$recruiter->id => 10000];
 
-        // 若上線為公司（sponsor_id 為 null），不再往上分配 5,000。
+        // 若有上線且上線不是公司，則上線拿 5,000。
         if ($recruiter->sponsor && $recruiter->sponsor->sponsor_id !== null) {
             $distribution[$recruiter->sponsor->id] = 5000;
+
+            return $distribution;
         }
+
+        // 若沒有上線，或上線為公司，該 5,000 回補給招募人（共 15,000）。
+        $distribution[$recruiter->id] += 5000;
 
         return $distribution;
     }

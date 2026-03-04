@@ -47,10 +47,10 @@ class AccountingFlowTest extends TestCase
         $dashboard = $this->actingAs($user)->get('/dashboard');
         $dashboard->assertOk();
         $dashboard->assertSee('72,000', false);
-        $dashboard->assertSee('10,000', false);
-        $dashboard->assertSee('62,000', false);
+        $dashboard->assertSee('15,000', false);
+        $dashboard->assertSee('57,000', false);
         $dashboard->assertSee('無', false);
-        $dashboard->assertSee('第一代：10,000', false);
+        $dashboard->assertSee('第一代：15,000', false);
     }
 
     public function test_guest_is_redirected_to_login(): void

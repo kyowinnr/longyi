@@ -8,7 +8,6 @@ use App\Models\RecruitmentEvent;
 use App\Services\BonusCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -49,19 +48,19 @@ class AccountingController extends Controller
             'birthday' => ['required', 'date'],
             'phone' => ['required', 'string', 'max:30'],
             'joined_at' => ['required', 'date'],
+            'expires_at' => ['required', 'date', 'after_or_equal:joined_at'],
         ]);
 
         DB::transaction(function () use ($validated, $calculator): void {
             $recruiter = Member::with('sponsor')->findOrFail($validated['recruiter_id']);
-            $joinedAt = Carbon::parse($validated['joined_at']);
 
             $newMember = Member::create([
                 'name' => $validated['new_member_name'],
                 'id_number' => $validated['id_number'],
                 'birthday' => $validated['birthday'],
                 'phone' => $validated['phone'],
-                'joined_at' => $joinedAt,
-                'expires_at' => $joinedAt->copy()->addYear(),
+                'joined_at' => $validated['joined_at'],
+                'expires_at' => $validated['expires_at'],
                 'sponsor_id' => $recruiter->id,
             ]);
 

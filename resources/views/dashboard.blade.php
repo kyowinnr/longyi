@@ -31,42 +31,45 @@
 
     <div class="card">
         <h3>新增招募（建立新成員）</h3>
-        <form method="POST" action="{{ route('members.recruit') }}">
+        <form method="POST" action="{{ route('members.recruit') }}" class="row" style="align-items: end;">
             @csrf
-            <select name="recruiter_id" required>
-                <option value="">選擇招募人</option>
-                @foreach($members as $member)
-                    <option value="{{ $member->id }}" @selected($member->id === $company->id)>{{ $member->name }}</option>
-                @endforeach
-            </select>
-            <input type="text" name="new_member_name" placeholder="姓名" required>
-            <input type="text" name="id_number" placeholder="身分證字號" required>
-            <input type="date" name="birthday" required>
-            <input type="text" name="phone" placeholder="電話" required>
-            <input type="date" name="joined_at" required>
-            <small>到期時間會自動設定為加入時間 + 1 年。</small>
+            <div>
+                <label>招募人</label><br>
+                <select name="recruiter_id" required>
+                    <option value="">選擇招募人</option>
+                    @foreach($members as $member)
+                        <option value="{{ $member->id }}" @selected($member->id === $company->id)>{{ $member->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div><label>姓名</label><br><input type="text" name="new_member_name" required></div>
+            <div><label>身分證字號</label><br><input type="text" name="id_number" required></div>
+            <div><label>生日</label><br><input type="date" name="birthday" required></div>
+            <div><label>電話</label><br><input type="text" name="phone" required></div>
+            <div><label>加入時間</label><br><input type="date" name="joined_at" required></div>
+            <div><label>到期時間</label><br><input type="date" name="expires_at" required></div>
             <button type="submit">送出</button>
         </form>
     </div>
 
     <div class="card">
-        <h3>RWS（Read/Write/Search）成員查詢</h3>
-        <form method="GET" action="{{ route('dashboard') }}">
+        <h3>成員查詢</h3>
+        <form method="GET" action="{{ route('dashboard') }}" class="row">
             <input type="text" name="q" value="{{ $keyword }}" placeholder="輸入成員名稱">
             <button type="submit">查詢</button>
         </form>
-        <ul>
-            @foreach($members as $member)
-                <li>
-                    {{ $member->name }}（推薦人：{{ $member->sponsor?->name ?? '無' }}）
-                    / 身分證：{{ $member->id_number ?? '-' }}
-                    / 生日：{{ optional($member->birthday)?->format('Y-m-d') ?? '-' }}
-                    / 電話：{{ $member->phone ?? '-' }}
-                    / 加入：{{ optional($member->joined_at)?->format('Y-m-d') ?? '-' }}
-                    / 到期：{{ optional($member->expires_at)?->format('Y-m-d') ?? '-' }}
-                </li>
-            @endforeach
-        </ul>
+        <div class="row">
+            @forelse($members as $member)
+                <div class="card" style="min-width: 230px; margin: .4rem 0;">
+                    <div style="font-size: 1.05rem; font-weight: 600;">{{ $member->name }}</div>
+                    <div style="color: #555; margin-top: .25rem;">
+                        到期日：{{ optional($member->expires_at)?->format('Y-m-d') ?? '未設定' }}
+                    </div>
+                </div>
+            @empty
+                <p>查無成員資料</p>
+            @endforelse
+        </div>
     </div>
 
     <h3>帳務明細</h3>

@@ -23,7 +23,7 @@ class AccountingFlowTest extends TestCase
         ]);
     }
 
-    public function test_recruitment_stores_profile_and_auto_sets_expiry_plus_one_year(): void
+    public function test_recruitment_stores_profile_with_manual_expiry_date(): void
     {
         $user = User::factory()->create();
 
@@ -37,6 +37,7 @@ class AccountingFlowTest extends TestCase
             'birthday' => '1990-01-01',
             'phone' => '0911222333',
             'joined_at' => '2026-01-15',
+            'expires_at' => '2026-12-31',
         ])->assertRedirect();
 
         $this->assertDatabaseHas('members', [
@@ -45,7 +46,7 @@ class AccountingFlowTest extends TestCase
             'birthday' => '1990-01-01',
             'phone' => '0911222333',
             'joined_at' => '2026-01-15 00:00:00',
-            'expires_at' => '2027-01-15 00:00:00',
+            'expires_at' => '2026-12-31 00:00:00',
         ]);
     }
 

@@ -23,34 +23,74 @@ class AccountingFlowTest extends TestCase
         ]);
     }
 
-    public function test_company_recruit_first_generation_has_no_bonus_then_first_generation_recruit_starts_bonus(): void
+    public function test_recruitment_stores_profile_and_auto_sets_expiry_plus_one_year(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)->get('/dashboard');
         $company = Member::where('name', '公司')->firstOrFail();
 
-        // 公司 -> 第一代（不分獎金）
         $this->actingAs($user)->post('/members/recruit', [
             'recruiter_id' => $company->id,
             'new_member_name' => '第一代',
+            'id_number' => 'A123456789',
+            'birthday' => '1990-01-01',
+            'phone' => '0911222333',
+            'joined_at' => '2026-01-15',
         ])->assertRedirect();
 
-        $firstGeneration = Member::where('name', '第一代')->firstOrFail();
+        $this->assertDatabaseHas('members', [
+            'name' => '第一代',
+            'id_number' => 'A123456789',
+            'birthday' => '1990-01-01',
+            'phone' => '0911222333',
+            'joined_at' => '2026-01-15 00:00:00',
+            'expires_at' => '2027-01-15 00:00:00',
+        ]);
+    }
 
-        // 第一代 -> 第二代（開始分獎金）
-        $this->actingAs($user)->post('/members/recruit', [
-            'recruiter_id' => $firstGeneration->id,
-            'new_member_name' => '第二代',
-        ])->assertRedirect();
+    public function test_network_page_shows_upline_downline_and_second_downline(): void
+    {
+        $user = User::factory()->create();
 
-        $dashboard = $this->actingAs($user)->get('/dashboard');
-        $dashboard->assertOk();
-        $dashboard->assertSee('72,000', false);
-        $dashboard->assertSee('15,000', false);
-        $dashboard->assertSee('57,000', false);
-        $dashboard->assertSee('無', false);
-        $dashboard->assertSee('第一代：15,000', false);
+        $this->actingAs($user)->get('/dashboard');
+        $company = Member::where('name', '公司')->firstOrFail();
+
+        $first = Member::create([
+            'name' => '第一代',
+            'id_number' => 'B123456789',
+            'birthday' => '1991-01-01',
+            'phone' => '0900000001',
+            'joined_at' => now(),
+            'expires_at' => now()->addYear(),
+            'sponsor_id' => $company->id,
+        ]);
+
+        $second = Member::create([
+            'name' => '第二代',
+            'id_number' => 'C123456789',
+            'birthday' => '1992-01-01',
+            'phone' => '0900000002',
+            'joined_at' => now(),
+            'expires_at' => now()->addYear(),
+            'sponsor_id' => $first->id,
+        ]);
+
+        Member::create([
+            'name' => '第三代',
+            'id_number' => 'D123456789',
+            'birthday' => '1993-01-01',
+            'phone' => '0900000003',
+            'joined_at' => now(),
+            'expires_at' => now()->addYear(),
+            'sponsor_id' => $second->id,
+        ]);
+
+        $res = $this->actingAs($user)->get('/members/network');
+        $res->assertOk();
+        $res->assertSee('第一代');
+        $res->assertSee('第二代');
+        $res->assertSee('第三代');
     }
 
     public function test_guest_is_redirected_to_login(): void

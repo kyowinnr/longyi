@@ -8,7 +8,9 @@ use App\Models\RecruitmentEvent;
 use App\Services\BonusCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class AccountingController extends Controller
@@ -43,12 +45,23 @@ class AccountingController extends Controller
         $validated = $request->validate([
             'recruiter_id' => ['required', 'exists:members,id'],
             'new_member_name' => ['required', 'string', 'max:255'],
+            'id_number' => ['required', 'string', 'max:20', Rule::unique('members', 'id_number')],
+            'birthday' => ['required', 'date'],
+            'phone' => ['required', 'string', 'max:30'],
+            'joined_at' => ['required', 'date'],
         ]);
 
         DB::transaction(function () use ($validated, $calculator): void {
             $recruiter = Member::with('sponsor')->findOrFail($validated['recruiter_id']);
+            $joinedAt = Carbon::parse($validated['joined_at']);
+
             $newMember = Member::create([
                 'name' => $validated['new_member_name'],
+                'id_number' => $validated['id_number'],
+                'birthday' => $validated['birthday'],
+                'phone' => $validated['phone'],
+                'joined_at' => $joinedAt,
+                'expires_at' => $joinedAt->copy()->addYear(),
                 'sponsor_id' => $recruiter->id,
             ]);
 
@@ -73,11 +86,31 @@ class AccountingController extends Controller
         return back()->with('status', '招募與帳務已建立');
     }
 
+    public function network(): View
+    {
+        $this->ensureDefaultCompany();
+
+        $members = Member::query()
+            ->with(['sponsor', 'recruits.recruits'])
+            ->orderBy('id')
+            ->get();
+
+        return view('members.network', compact('members'));
+    }
+
     private function ensureDefaultCompany(): Member
     {
         return Member::query()->firstOrCreate(
             ['name' => '公司', 'sponsor_id' => null],
-            ['name' => '公司', 'sponsor_id' => null]
+            [
+                'name' => '公司',
+                'id_number' => null,
+                'birthday' => null,
+                'phone' => null,
+                'joined_at' => null,
+                'expires_at' => null,
+                'sponsor_id' => null,
+            ]
         );
     }
 }

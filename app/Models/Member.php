@@ -11,7 +11,21 @@ class Member extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'sponsor_id'];
+    protected $fillable = [
+        'name',
+        'id_number',
+        'birthday',
+        'phone',
+        'joined_at',
+        'expires_at',
+        'sponsor_id',
+    ];
+
+    protected $casts = [
+        'birthday' => 'date',
+        'joined_at' => 'datetime',
+        'expires_at' => 'datetime',
+    ];
 
     public function sponsor(): BelongsTo
     {

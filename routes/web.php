@@ -13,6 +13,7 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [AccountingController::class, 'index'])->name('dashboard');
+    Route::get('/members/network', [AccountingController::class, 'network'])->name('members.network');
     Route::post('/members/recruit', [AccountingController::class, 'recruit'])->name('members.recruit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

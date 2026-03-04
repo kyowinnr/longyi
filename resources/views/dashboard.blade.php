@@ -3,7 +3,10 @@
 @section('content')
     <div class="row" style="justify-content: space-between; align-items: center;">
         <h1>傳銷帳務系統（含 RWS API）</h1>
-        <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">登出</button></form>
+        <div class="row" style="align-items: center;">
+            <a href="{{ route('members.network') }}">成員上下線關係</a>
+            <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">登出</button></form>
+        </div>
     </div>
 
     @if(session('status'))
@@ -27,7 +30,7 @@
     </div>
 
     <div class="card">
-        <h3>新增招募</h3>
+        <h3>新增招募（建立新成員）</h3>
         <form method="POST" action="{{ route('members.recruit') }}">
             @csrf
             <select name="recruiter_id" required>
@@ -36,7 +39,12 @@
                     <option value="{{ $member->id }}" @selected($member->id === $company->id)>{{ $member->name }}</option>
                 @endforeach
             </select>
-            <input type="text" name="new_member_name" placeholder="新成員名稱" required>
+            <input type="text" name="new_member_name" placeholder="姓名" required>
+            <input type="text" name="id_number" placeholder="身分證字號" required>
+            <input type="date" name="birthday" required>
+            <input type="text" name="phone" placeholder="電話" required>
+            <input type="date" name="joined_at" required>
+            <small>到期時間會自動設定為加入時間 + 1 年。</small>
             <button type="submit">送出</button>
         </form>
     </div>
@@ -49,7 +57,14 @@
         </form>
         <ul>
             @foreach($members as $member)
-                <li>{{ $member->name }}（推薦人：{{ $member->sponsor?->name ?? '無' }}）</li>
+                <li>
+                    {{ $member->name }}（推薦人：{{ $member->sponsor?->name ?? '無' }}）
+                    / 身分證：{{ $member->id_number ?? '-' }}
+                    / 生日：{{ optional($member->birthday)?->format('Y-m-d') ?? '-' }}
+                    / 電話：{{ $member->phone ?? '-' }}
+                    / 加入：{{ optional($member->joined_at)?->format('Y-m-d') ?? '-' }}
+                    / 到期：{{ optional($member->expires_at)?->format('Y-m-d') ?? '-' }}
+                </li>
             @endforeach
         </ul>
     </div>

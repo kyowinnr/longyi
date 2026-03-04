@@ -11,45 +11,46 @@ class AccountingFlowTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dashboard_auto_creates_default_first_generation_member(): void
+    public function test_dashboard_auto_creates_default_company_member(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)->get('/dashboard')->assertOk();
 
         $this->assertDatabaseHas('members', [
-            'name' => '第一代',
+            'name' => '公司',
             'sponsor_id' => null,
         ]);
     }
 
-    public function test_first_generation_recruitment_has_no_bonus_and_second_generation_starts_bonus(): void
+    public function test_company_recruit_first_generation_has_no_bonus_then_first_generation_recruit_starts_bonus(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)->get('/dashboard');
-        $first = Member::where('name', '第一代')->firstOrFail();
+        $company = Member::where('name', '公司')->firstOrFail();
 
+        // 公司 -> 第一代（不分獎金）
         $this->actingAs($user)->post('/members/recruit', [
-            'recruiter_id' => $first->id,
-            'new_member_name' => '第二代',
+            'recruiter_id' => $company->id,
+            'new_member_name' => '第一代',
         ])->assertRedirect();
 
-        $second = Member::where('name', '第二代')->firstOrFail();
+        $firstGeneration = Member::where('name', '第一代')->firstOrFail();
 
+        // 第一代 -> 第二代（開始分獎金）
         $this->actingAs($user)->post('/members/recruit', [
-            'recruiter_id' => $second->id,
-            'new_member_name' => '第三代',
+            'recruiter_id' => $firstGeneration->id,
+            'new_member_name' => '第二代',
         ])->assertRedirect();
 
         $dashboard = $this->actingAs($user)->get('/dashboard');
         $dashboard->assertOk();
         $dashboard->assertSee('72,000', false);
-        $dashboard->assertSee('15,000', false);
-        $dashboard->assertSee('57,000', false);
+        $dashboard->assertSee('10,000', false);
+        $dashboard->assertSee('62,000', false);
         $dashboard->assertSee('無', false);
-        $dashboard->assertSee('第一代：5,000', false);
-        $dashboard->assertSee('第二代：10,000', false);
+        $dashboard->assertSee('第一代：10,000', false);
     }
 
     public function test_guest_is_redirected_to_login(): void

@@ -15,7 +15,7 @@ class AccountingController extends Controller
 {
     public function index(Request $request): View
     {
-        $this->ensureDefaultFirstGeneration();
+        $company = $this->ensureDefaultCompany();
 
         $keyword = $request->string('q')->toString();
 
@@ -33,12 +33,12 @@ class AccountingController extends Controller
         $totalIncome = RecruitmentEvent::sum('company_income');
         $totalPayout = BonusPayout::sum('amount');
 
-        return view('dashboard', compact('members', 'events', 'totalIncome', 'totalPayout', 'keyword'));
+        return view('dashboard', compact('members', 'events', 'totalIncome', 'totalPayout', 'keyword', 'company'));
     }
 
     public function recruit(Request $request, BonusCalculator $calculator): RedirectResponse
     {
-        $this->ensureDefaultFirstGeneration();
+        $this->ensureDefaultCompany();
 
         $validated = $request->validate([
             'recruiter_id' => ['required', 'exists:members,id'],
@@ -73,11 +73,11 @@ class AccountingController extends Controller
         return back()->with('status', '招募與帳務已建立');
     }
 
-    private function ensureDefaultFirstGeneration(): void
+    private function ensureDefaultCompany(): Member
     {
-        Member::query()->firstOrCreate(
-            ['name' => '第一代', 'sponsor_id' => null],
-            ['name' => '第一代', 'sponsor_id' => null]
+        return Member::query()->firstOrCreate(
+            ['name' => '公司', 'sponsor_id' => null],
+            ['name' => '公司', 'sponsor_id' => null]
         );
     }
 }

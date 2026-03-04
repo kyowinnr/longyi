@@ -11,7 +11,7 @@
     @endif
 
     <div class="card">
-        <p><strong>規則：</strong>系統預設有「第一代」，第一代招收第二代不分獎金；從第二代開始招募才分獎金。</p>
+        <p><strong>規則：</strong>預設招募人為「公司」；公司招收第一代不分獎金，第一代招收第二代開始分獎金。</p>
     </div>
 
     <div class="row">
@@ -33,7 +33,7 @@
             <select name="recruiter_id" required>
                 <option value="">選擇招募人</option>
                 @foreach($members as $member)
-                    <option value="{{ $member->id }}">{{ $member->name }}</option>
+                    <option value="{{ $member->id }}" @selected($member->id === $company->id)>{{ $member->name }}</option>
                 @endforeach
             </select>
             <input type="text" name="new_member_name" placeholder="新成員名稱" required>

@@ -1,3 +1,30 @@
+## 專案資料庫設定（MySQL）
+
+請在 `.env` 使用以下設定：
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=mlm_accounting
+DB_USERNAME=root
+DB_PASSWORD=secret
+```
+
+建立資料庫範例：
+
+```sql
+CREATE DATABASE mlm_accounting CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+套用 migration：
+
+```bash
+php artisan migrate
+```
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">

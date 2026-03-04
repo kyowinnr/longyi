@@ -49,6 +49,7 @@ class AccountingController extends Controller
             'phone' => ['required', 'string', 'max:30'],
             'joined_at' => ['required', 'date'],
             'expires_at' => ['required', 'date', 'after_or_equal:joined_at'],
+            'note' => ['nullable', 'string', 'max:1000'],
         ]);
 
         DB::transaction(function () use ($validated, $calculator): void {
@@ -71,6 +72,7 @@ class AccountingController extends Controller
                 'new_member_id' => $newMember->id,
                 'company_income' => 36000,
                 'bonus_payout_total' => array_sum($distribution),
+                'note' => $validated['note'] ?? null,
             ]);
 
             foreach ($distribution as $memberId => $amount) {
@@ -83,6 +85,33 @@ class AccountingController extends Controller
         });
 
         return back()->with('status', '招募與帳務已建立');
+    }
+
+    public function updateMember(Request $request, Member $member): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'id_number' => ['required', 'string', 'max:20', Rule::unique('members', 'id_number')->ignore($member->id)],
+            'birthday' => ['required', 'date'],
+            'phone' => ['required', 'string', 'max:30'],
+            'joined_at' => ['required', 'date'],
+            'expires_at' => ['required', 'date', 'after_or_equal:joined_at'],
+        ]);
+
+        $member->update($validated);
+
+        return back()->with('status', "已更新 {$member->name} 的基本資料");
+    }
+
+    public function updateEventNote(Request $request, RecruitmentEvent $event): RedirectResponse
+    {
+        $validated = $request->validate([
+            'note' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $event->update(['note' => $validated['note'] ?? null]);
+
+        return back()->with('status', '帳務備註已更新');
     }
 
     public function network(): View

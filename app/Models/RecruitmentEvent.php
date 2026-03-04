@@ -11,7 +11,7 @@ class RecruitmentEvent extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['recruiter_id', 'new_member_id', 'company_income', 'bonus_payout_total'];
+    protected $fillable = ['recruiter_id', 'new_member_id', 'company_income', 'bonus_payout_total', 'note'];
 
     public function recruiter(): BelongsTo
     {

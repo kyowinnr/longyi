@@ -6,15 +6,15 @@
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=mlm_accounting
+DB_DATABASE=longyi
 DB_USERNAME=root
-DB_PASSWORD=secret
+DB_PASSWORD=
 ```
 
 建立資料庫範例：
 
 ```sql
-CREATE DATABASE mlm_accounting CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE longyi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 套用 migration：

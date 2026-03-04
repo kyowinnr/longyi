@@ -23,6 +23,22 @@ CREATE DATABASE longyi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 php artisan migrate
 ```
 
+> 為避免登入後 419（Page Expired），建議先使用不依賴資料庫的 Session 設定：
+
+```env
+SESSION_DRIVER=file
+CACHE_STORE=file
+QUEUE_CONNECTION=sync
+```
+
+若你有改過 `.env`，請執行：
+
+```bash
+php artisan config:clear
+php artisan cache:clear
+```
+
+
 ---
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
